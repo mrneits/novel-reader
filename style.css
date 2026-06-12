@@ -1,0 +1,30 @@
+body{
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+    font-size:18px;
+    line-height:1.8;
+    font-family:Arial,sans-serif;
+}
+
+li{
+    margin:10px 0;
+    cursor:pointer;
+}
+
+li:hover{
+    text-decoration:underline;
+}
+
+button{
+    padding:10px 15px;
+    margin:5px;
+}
+
+.nav{
+    margin-top:30px;
+}
+
+#content{
+    margin-top:20px;
+}
