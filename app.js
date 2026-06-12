@@ -5,11 +5,8 @@ const PAGE_SIZE = 20;
 let currentPage = 1;
 let currentData = [];
 
-// ⚙️ VARIABLES FOR AUTO SCROLL & POSITION
-let autoScrollActive = false;
-let scrollSpeed = 2; // Pixel cuộn mỗi khung hình (Dành cho nút Auto Scroll nếu dùng)
-let scrollAnimationId = null;
-let isRestoringScroll = false; // Cờ chặn việc ghi đè vị trí cũ trong lúc đang khôi phục màn hình
+// ⚙️ VARIABLES FOR POSITION MANAGEMENT
+let isRestoringScroll = false; // Cờ chặn việc ghi đè vị trí cũ trong lúc trình duyệt đang khôi phục màn hình
 
 
 // =====================
@@ -126,9 +123,6 @@ function searchChapter(){
 // =====================
 async function openChapter(index){
 
-    // Dừng cuộn tự động nếu đang chạy trước khi chuyển chương
-    stopAutoScroll();
-
     current = index;
     const chapter = chapters[index];
 
@@ -145,8 +139,7 @@ async function openChapter(index){
     saveLastRead(index);
     renderLastRead();
 
-    // 📌 🔴 KHÔI PHỤC VỊ TRÍ ĐỌC DỞ CHÍNH XÁC
-    // Đọc thông tin chương đọc dở cuối cùng được lưu trong LocalStorage
+    // 📌 KHÔI PHỤC VỊ TRÍ ĐỌC DỞ CHÍNH XÁC
     const savedChapterId = localStorage.getItem("bookmark_chapter_id");
     const savedPosition = localStorage.getItem("bookmark_scroll_pos");
     
@@ -154,13 +147,13 @@ async function openChapter(index){
     if (savedChapterId && savedPosition && savedChapterId === chapter.id.toString()) {
         isRestoringScroll = true;
         
-        // Đặt timeout 100ms để đảm bảo trình duyệt hoàn tất việc dựng layout và tính đúng độ dài trang web
+        // Đặt timeout ngắn (100ms) chờ trình duyệt render HTML xong để cuộn nhảy đến đúng vị trí cũ
         setTimeout(() => {
             window.scrollTo(0, parseInt(savedPosition));
             isRestoringScroll = false;
         }, 100);
     } else {
-        // Nếu mở một chương hoàn toàn khác hoặc chưa từng đọc chương này, đưa thẳng lên đầu trang
+        // Nếu mở một chương khác hoặc chưa từng đọc chương này, đưa thẳng lên đầu trang
         window.scrollTo(0, 0);
     }
 }
@@ -193,17 +186,14 @@ function renderLastRead(){
 
 
 // =====================
-// 📌 🔴 LẮNG NGHE & CẬP NHẬT VỊ TRÍ KHI NGƯỜI DÙNG CUỘN TRANG
+// 📌 LẮNG NGHE & CẬP NHẬT VỊ TRÍ KHI NGƯỜI DÙNG CUỘN TRANG
 // =====================
 window.addEventListener("scroll", () => {
-    // Chỉ thực hiện ghi nhận vị trí nếu:
-    // 1. Đang ở màn hình đọc truyện (#reader đang hiển thị)
-    // 2. Không ở trong tiến trình tự động phục hồi vị trí (tránh việc ghi đè số 0 khi trang chưa cuộn xong)
-    // 3. Dữ liệu chương hiện tại đã được tải thành công
+    // Chỉ lưu vị trí nếu đang ở màn hình đọc và không nằm trong tiến trình khôi phục cuộn trang cũ
     if (document.getElementById("reader").style.display === "block" && !isRestoringScroll && chapters[current]) {
         const chapterId = chapters[current].id;
         
-        // Luôn liên tục ghi đè vị trí mới nhất của chính chương này vào LocalStorage
+        // Chỉ lưu duy nhất 1 thông tin vị trí của chương mới nhất đang đọc
         localStorage.setItem("bookmark_chapter_id", chapterId);
         localStorage.setItem("bookmark_scroll_pos", window.scrollY);
     }
@@ -211,75 +201,25 @@ window.addEventListener("scroll", () => {
 
 
 // =====================
-// ⚙️ AUTO SCROLL LOGIC (GIỮ NGUYÊN ĐỂ BẠN DÙNG NẾU MUỐN CUỘN TỰ ĐỘNG)
+// NAVIGATION
 // =====================
-function toggleAutoScroll() {
-    if (autoScrollActive) {
-        stopAutoScroll();
-    } else {
-        startAutoScroll();
+function nextChapter(){
+    if(current < chapters.length - 1){
+        openChapter(current + 1);
     }
 }
 
-function startAutoScroll() {
-    if (autoScrollActive) return;
-    autoScrollActive = true;
-
-    const btn = document.getElementById("autoScrollBtn");
-    if (btn) {
-        btn.textContent = "⏸ Dừng cuộn";
-        btn.classList.add("active");
-    }
-
-    function scrollStep() {
-        if (!autoScrollActive) return;
-        
-        window.scrollBy(0, scrollSpeed);
-
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) {
-            stopAutoScroll();
-            return;
-        }
-
-        scrollAnimationId = requestAnimationFrame(scrollStep);
-    }
-
-    scrollAnimationId = requestAnimationFrame(scrollStep);
-}
-
-function stopAutoScroll() {
-    autoScrollActive = false;
-    if (scrollAnimationId) {
-        cancelAnimationFrame(scrollAnimationId);
-        scrollAnimationId = null;
-    }
-
-    const btn = document.getElementById("autoScrollBtn");
-    if (btn) {
-        btn.textContent = "▶ Tự động cuộn";
-        btn.classList.remove("active");
+function prevChapter(){
+    if(current > 0){
+        openChapter(current - 1);
     }
 }
 
-function updateScrollSpeed(val) {
-    scrollSpeed = parseFloat(val);
+
+// =====================
+// BACK TO LIST
+// =====================
+function showList(){
+    document.getElementById("reader").style.display = "none";
+    document.getElementById("chapterList").style.display = "block";
 }
-
-// UX Tweak: Cuộn ngược lên để dừng auto scroll
-window.addEventListener("wheel", (e) => {
-    if (autoScrollActive && e.deltaY < 0) { 
-        stopAutoScroll();
-    }
-});
-
-// Hỗ trợ cảm ứng trên Mobile
-let touchStartY = 0;
-window.addEventListener("touchstart", (e) => {
-    touchStartY = e.touches[0].clientY;
-}, { passive: true });
-
-window.addEventListener("touchmove", (e) => {
-    if (autoScrollActive) {
-        let touchMoveY = e.touches[0].clientY;
-        if (touchMoveY > touchStartY + 10) {
-            stop
