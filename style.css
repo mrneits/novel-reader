@@ -71,3 +71,42 @@ button{
     gap:10px;
     align-items:center;
 }
+
+/* ⚙️ AUTO SCROLL STYLES */
+.scroll-control {
+    background: #f9f9f9;
+    padding: 10px 15px;
+    margin: 15px 0;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+}
+
+.scroll-control button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    padding: 8px 16px;
+    margin: 0;
+}
+
+.scroll-control button.active {
+    background-color: #f44336;
+}
+
+.speed-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+}
+
+.speed-control input[type="range"] {
+    cursor: pointer;
+    vertical-align: middle;
+}
