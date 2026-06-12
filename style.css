@@ -7,18 +7,35 @@ body{
     font-size:18px;
 }
 
+/* TITLE */
 h1{
     margin-bottom:15px;
 }
 
+/* SEARCH */
 #searchInput{
     width:100%;
     padding:12px;
     font-size:16px;
-    margin-bottom:15px;
+    margin-bottom:10px;
     box-sizing:border-box;
 }
 
+/* LAST READ BOX */
+.last-read{
+    padding:10px;
+    margin-bottom:10px;
+    background:#f0f8ff;
+    border-left:4px solid #2196F3;
+    cursor:pointer;
+    display:none;
+}
+
+.last-read:hover{
+    background:#e6f2ff;
+}
+
+/* LIST */
 ul{
     padding:0;
 }
@@ -34,16 +51,19 @@ li:hover{
     background:#f5f5f5;
 }
 
+/* BUTTON */
 button{
     padding:8px 12px;
     margin:5px;
     cursor:pointer;
 }
 
+/* NAV */
 .nav{
     margin-top:25px;
 }
 
+/* PAGINATION */
 #pagination{
     margin-top:15px;
     display:flex;
