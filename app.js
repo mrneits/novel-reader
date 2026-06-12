@@ -5,18 +5,25 @@ const PAGE_SIZE = 20;
 let currentPage = 1;
 let currentData = [];
 
+
+// =====================
+// LOAD DATA
+// =====================
 fetch("chapters/index.json")
 .then(res => res.json())
 .then(data => {
+
     chapters = data;
     currentData = chapters;
+
     renderPage(currentPage);
+    renderLastRead();
 });
 
 
-// =========================
-// RENDER CHAPTER LIST
-// =========================
+// =====================
+// RENDER PAGE (PAGINATION)
+// =====================
 function renderPage(page){
 
     const list = document.getElementById("list");
@@ -27,7 +34,7 @@ function renderPage(page){
 
     const pageItems = currentData.slice(start, end);
 
-    pageItems.forEach((chapter) => {
+    pageItems.forEach(chapter => {
 
         const realIndex = chapters.findIndex(c => c.id === chapter.id);
 
@@ -43,18 +50,15 @@ function renderPage(page){
 }
 
 
-// =========================
+// =====================
 // PAGINATION UI
-// =========================
+// =====================
 function renderPagination(){
 
-    const container = document.getElementById("pagination");
-    container.innerHTML = "";
+    const box = document.getElementById("pagination");
+    box.innerHTML = "";
 
     const totalPages = Math.ceil(currentData.length / PAGE_SIZE);
-
-    const info = document.createElement("span");
-    info.textContent = `Trang ${currentPage} / ${totalPages}`;
 
     const prev = document.createElement("button");
     prev.textContent = "⬅";
@@ -64,15 +68,18 @@ function renderPagination(){
     next.textContent = "➡";
     next.onclick = () => changePage(1);
 
-    container.appendChild(prev);
-    container.appendChild(info);
-    container.appendChild(next);
+    const info = document.createElement("span");
+    info.textContent = `Trang ${currentPage} / ${totalPages}`;
+
+    box.appendChild(prev);
+    box.appendChild(info);
+    box.appendChild(next);
 }
 
 
-// =========================
+// =====================
 // CHANGE PAGE
-// =========================
+// =====================
 function changePage(step){
 
     const totalPages = Math.ceil(currentData.length / PAGE_SIZE);
@@ -86,14 +93,13 @@ function changePage(step){
 }
 
 
-// =========================
-// SEARCH CHAPTER
-// =========================
+// =====================
+// SEARCH
+// =====================
 function searchChapter(){
 
     const keyword = document.getElementById("searchInput")
-        .value
-        .toLowerCase();
+        .value.toLowerCase();
 
     if(keyword === ""){
         currentData = chapters;
@@ -109,9 +115,9 @@ function searchChapter(){
 }
 
 
-// =========================
+// =====================
 // OPEN CHAPTER
-// =========================
+// =====================
 async function openChapter(index){
 
     current = index;
@@ -128,12 +134,42 @@ async function openChapter(index){
     document.getElementById("reader").style.display = "block";
 
     window.scrollTo(0,0);
+
+    // 📌 SAVE LAST READ
+    saveLastRead(index);
+    renderLastRead();
 }
 
 
-// =========================
+// =====================
+// LAST READ (LOCALSTORAGE)
+// =====================
+function saveLastRead(index){
+    localStorage.setItem("lastReadChapter", index);
+}
+
+function renderLastRead(){
+
+    const index = localStorage.getItem("lastReadChapter");
+    const box = document.getElementById("lastRead");
+
+    if(index === null){
+        box.style.display = "none";
+        return;
+    }
+
+    const chapter = chapters[index];
+
+    box.style.display = "block";
+    box.innerHTML = `📌 Đọc gần nhất: <b>${chapter.title}</b>`;
+
+    box.onclick = () => openChapter(Number(index));
+}
+
+
+// =====================
 // NAVIGATION
-// =========================
+// =====================
 function nextChapter(){
     if(current < chapters.length - 1){
         openChapter(current + 1);
@@ -147,9 +183,9 @@ function prevChapter(){
 }
 
 
-// =========================
+// =====================
 // BACK TO LIST
-// =========================
+// =====================
 function showList(){
     document.getElementById("reader").style.display = "none";
     document.getElementById("chapterList").style.display = "block";
