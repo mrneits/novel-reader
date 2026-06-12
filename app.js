@@ -7,9 +7,9 @@ let currentData = [];
 
 // ⚙️ VARIABLES FOR AUTO SCROLL & POSITION
 let autoScrollActive = false;
-let scrollSpeed = 2; // Pixel cuộn mỗi khung hình
+let scrollSpeed = 2; // Pixel cuộn mỗi khung hình (Dành cho nút Auto Scroll nếu dùng)
 let scrollAnimationId = null;
-let isRestoringScroll = false; // Cờ chặn việc ghi đè vị trí khi đang khôi phục cuộn cũ
+let isRestoringScroll = false; // Cờ chặn việc ghi đè vị trí cũ trong lúc đang khôi phục màn hình
 
 
 // =====================
@@ -126,12 +126,10 @@ function searchChapter(){
 // =====================
 async function openChapter(index){
 
-    // 1. Dừng cuộn tự động và XÓA vị trí cuộn của chương cũ trước khi chuyển
+    // Dừng cuộn tự động nếu đang chạy trước khi chuyển chương
     stopAutoScroll();
-    clearScrollPosition();
 
     current = index;
-
     const chapter = chapters[index];
 
     const res = await fetch(`chapters/${chapter.file}`);
@@ -143,24 +141,26 @@ async function openChapter(index){
     document.getElementById("chapterList").style.display = "none";
     document.getElementById("reader").style.display = "block";
 
-    // 📌 SAVE LAST READ (Lưu chương đọc gần nhất)
+    // 📌 SAVE LAST READ
     saveLastRead(index);
     renderLastRead();
 
-    // 📌 RESTORE SCROLL POSITION
-    // Kiểm tra xem chương chuẩn bị mở này có trùng với chương đã lưu vị trí trước đó không
-    const savedChapterId = localStorage.getItem("scroll_chapter_id");
-    const savedPosition = localStorage.getItem("current_scroll_pos");
+    // 📌 🔴 KHÔI PHỤC VỊ TRÍ ĐỌC DỞ CHÍNH XÁC
+    // Đọc thông tin chương đọc dở cuối cùng được lưu trong LocalStorage
+    const savedChapterId = localStorage.getItem("bookmark_chapter_id");
+    const savedPosition = localStorage.getItem("bookmark_scroll_pos");
     
+    // Nếu ID chương đang mở trùng khớp với ID chương lưu trong máy
     if (savedChapterId && savedPosition && savedChapterId === chapter.id.toString()) {
         isRestoringScroll = true;
-        // Đợi DOM render xong hoàn toàn để tính toán đúng chiều cao trang
+        
+        // Đặt timeout 100ms để đảm bảo trình duyệt hoàn tất việc dựng layout và tính đúng độ dài trang web
         setTimeout(() => {
             window.scrollTo(0, parseInt(savedPosition));
             isRestoringScroll = false;
-        }, 80);
+        }, 100);
     } else {
-        // Nếu là chương hoàn toàn mới hoặc chưa có dữ liệu vị trí, đưa lên đầu trang
+        // Nếu mở một chương hoàn toàn khác hoặc chưa từng đọc chương này, đưa thẳng lên đầu trang
         window.scrollTo(0, 0);
     }
 }
@@ -193,25 +193,93 @@ function renderLastRead(){
 
 
 // =====================
-// 📌 LOGIC GIỮ & XÓA VỊ TRÍ CUỘN (TỐI ƯU HÓA)
+// 📌 🔴 LẮNG NGHE & CẬP NHẬT VỊ TRÍ KHI NGƯỜI DÙNG CUỘN TRANG
 // =====================
-
-// Hàm xóa vị trí cuộn cũ
-function clearScrollPosition() {
-    localStorage.removeItem("scroll_chapter_id");
-    localStorage.removeItem("current_scroll_pos");
-}
-
-// Lắng nghe hành vi cuộn trang của người dùng để lưu vị trí (Chỉ lưu duy nhất chương đang đọc)
 window.addEventListener("scroll", () => {
+    // Chỉ thực hiện ghi nhận vị trí nếu:
+    // 1. Đang ở màn hình đọc truyện (#reader đang hiển thị)
+    // 2. Không ở trong tiến trình tự động phục hồi vị trí (tránh việc ghi đè số 0 khi trang chưa cuộn xong)
+    // 3. Dữ liệu chương hiện tại đã được tải thành công
     if (document.getElementById("reader").style.display === "block" && !isRestoringScroll && chapters[current]) {
         const chapterId = chapters[current].id;
-        localStorage.setItem("scroll_chapter_id", chapterId);
-        localStorage.setItem("current_scroll_pos", window.scrollY);
+        
+        // Luôn liên tục ghi đè vị trí mới nhất của chính chương này vào LocalStorage
+        localStorage.setItem("bookmark_chapter_id", chapterId);
+        localStorage.setItem("bookmark_scroll_pos", window.scrollY);
     }
 });
 
 
 // =====================
-// ⚙️ AUTO SCROLL LOGIC
-// =
+// ⚙️ AUTO SCROLL LOGIC (GIỮ NGUYÊN ĐỂ BẠN DÙNG NẾU MUỐN CUỘN TỰ ĐỘNG)
+// =====================
+function toggleAutoScroll() {
+    if (autoScrollActive) {
+        stopAutoScroll();
+    } else {
+        startAutoScroll();
+    }
+}
+
+function startAutoScroll() {
+    if (autoScrollActive) return;
+    autoScrollActive = true;
+
+    const btn = document.getElementById("autoScrollBtn");
+    if (btn) {
+        btn.textContent = "⏸ Dừng cuộn";
+        btn.classList.add("active");
+    }
+
+    function scrollStep() {
+        if (!autoScrollActive) return;
+        
+        window.scrollBy(0, scrollSpeed);
+
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) {
+            stopAutoScroll();
+            return;
+        }
+
+        scrollAnimationId = requestAnimationFrame(scrollStep);
+    }
+
+    scrollAnimationId = requestAnimationFrame(scrollStep);
+}
+
+function stopAutoScroll() {
+    autoScrollActive = false;
+    if (scrollAnimationId) {
+        cancelAnimationFrame(scrollAnimationId);
+        scrollAnimationId = null;
+    }
+
+    const btn = document.getElementById("autoScrollBtn");
+    if (btn) {
+        btn.textContent = "▶ Tự động cuộn";
+        btn.classList.remove("active");
+    }
+}
+
+function updateScrollSpeed(val) {
+    scrollSpeed = parseFloat(val);
+}
+
+// UX Tweak: Cuộn ngược lên để dừng auto scroll
+window.addEventListener("wheel", (e) => {
+    if (autoScrollActive && e.deltaY < 0) { 
+        stopAutoScroll();
+    }
+});
+
+// Hỗ trợ cảm ứng trên Mobile
+let touchStartY = 0;
+window.addEventListener("touchstart", (e) => {
+    touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+window.addEventListener("touchmove", (e) => {
+    if (autoScrollActive) {
+        let touchMoveY = e.touches[0].clientY;
+        if (touchMoveY > touchStartY + 10) {
+            stop
