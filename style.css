@@ -1,31 +1,31 @@
 /* ==========================================================================
-   1. ĐỊNH NGHĨA BIẾN MÀU (CSS VARIABLES)
+   ĐỊNH NGHĨA BIẾN MÀU (CSS VARIABLES)
    ========================================================================== */
 :root {
     --bg-color: #ffffff;             /* Màu nền chính toàn trang */
     --text-color: #000000;           /* Màu chữ chính */
     --border-color: #dddddd;         /* Màu đường viền */
-    --btn-bg: #edf2f7;               /* Màu nền nút bấm mục lục */
+    --btn-bg: #edf2f7;               /* Màu nền nút bấm */
     --btn-text: #000000;             /* Màu chữ của nút */
     --last-read-bg: #f0f8ff;         /* Màu nền hộp Đọc gần nhất */
     --last-read-border: #2196F3;     /* Màu viền hộp Đọc gần nhất */
     --hover-bg: #f5f5f5;             /* Màu khi di chuột qua hàng */
 }
 
-/* Bảng màu khi kích hoạt Chế độ tối (Dark Mode) */
+/* Bảng màu bảo vệ mắt khi kích hoạt Chế độ tối (Dark Mode) */
 body.dark-mode {
-    --bg-color: #121212;             /* Nền tối không gây chói mắt */
-    --text-color: #e0e0e0;           /* Chữ xám sáng giảm mỏi mắt */
-    --border-color: #333333;         /* Viền tối hơn */
-    --btn-bg: #2d2d2d;               /* Nền nút tối */
-    --btn-text: #e0e0e0;             /* Chữ nút sáng */
-    --last-read-bg: #1a2635;         /* Hộp đọc gần nhất ban đêm */
-    --last-read-border: #1565c0;     /* Viền đọc gần nhất ban đêm */
-    --hover-bg: #1e1e1e;             /* Màu hover ban đêm */
+    --bg-color: #161a22;             /* Nền tối sâu giảm kích thích võng mạc */
+    --text-color: #e2e8f0;           /* Chữ xám sáng dịu mắt, tránh hiệu ứng bóng ma */
+    --border-color: #2d3748;         /* Viền tối */
+    --btn-bg: #2d3748;               /* Nền nút tối */
+    --btn-text: #edf2f7;             /* Chữ nút sáng */
+    --last-read-bg: #1e2e42;         /* Hộp đọc gần nhất ban đêm */
+    --last-read-border: #2b6cb0;     /* Viền đọc gần nhất ban đêm */
+    --hover-bg: #232d3f;             /* Màu hover ban đêm */
 }
 
 /* ==========================================================================
-   2. CẤU TRÚC GIAO DIỆN CHÍNH (ÁP DỤNG BIẾN MÀU THAY MÀU CỐ ĐỊNH)
+   CẤU TRÚC GIAO DIỆN CHÍNH (ÁP DỤNG BIẾN MÀU THAY MÀU CỐ ĐỊNH)
    ========================================================================== */
 body {
     max-width: 900px;
@@ -34,12 +34,12 @@ body {
     font-family: Arial, sans-serif;
     line-height: 1.8;
     font-size: 18px;
-    background-color: var(--bg-color); /* Áp dụng biến màu nền */
-    color: var(--text-color);           /* Áp dụng biến màu chữ */
-    transition: background-color 0.2s ease, color 0.2s ease; /* Hiệu ứng chuyển màu mượt */
+    background-color: var(--bg-color); /* Đồng bộ màu nền */
+    color: var(--text-color);           /* Đồng bộ màu chữ */
+    transition: background-color 0.25s ease, color 0.25s ease; /* Hiệu ứng mượt mà khi đổi chế độ */
 }
 
-/* NỘI DUNG TRUYỆN (MARKDOWN CONTENT) */
+/* NỘI DUNG VĂN BẢN TRUYỆN */
 #content {
     color: var(--text-color);
 }
@@ -73,11 +73,11 @@ h1 {
 }
 
 .last-read:hover {
-    filter: brightness(95%); /* Tự động tối đi một chút khi hover */
+    filter: brightness(95%);
 }
 
 body.dark-mode .last-read:hover {
-    filter: brightness(120%); /* Tự động sáng lên một chút khi hover ở chế độ tối */
+    filter: brightness(120%);
 }
 
 /* LIST CHƯƠNG */
@@ -97,7 +97,7 @@ li:hover {
     background-color: var(--hover-bg);
 }
 
-/* BUTTONS (Nút chuyển chương, nút mục lục) */
+/* BUTTONS (Nút điều hướng, mục lục) */
 button {
     padding: 8px 12px;
     margin: 5px;
@@ -127,9 +127,7 @@ button:hover {
     align-items: center;
 }
 
-/* ==========================================================================
-   3. ĐỊNH DẠNG RIÊNG CHO NÚT ICON ĐỔI GIAO DIỆN GÓC MÀN HÌNH
-   ========================================================================== */
+/* ĐỊNH DẠNG RIÊNG CHO NÚT ICON ĐỔI GIAO DIỆN GÓC MÀN HÌNH */
 .theme-toggle {
     position: fixed;
     top: 20px;
@@ -143,11 +141,11 @@ button:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
     background-color: var(--btn-bg);
     border: 1px solid var(--border-color);
 }
 
 body.dark-mode .theme-toggle {
-    box-shadow: 0 2px 8px rgba(255,255,255,0.05);
+    box-shadow: 0 2px 10px rgba(255,255,255,0.05);
 }
