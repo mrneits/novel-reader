@@ -1,150 +1,135 @@
 /* ==========================================================================
-   VARIABLES & DEFAULT (LIGHT MODE)
+   1. ĐỊNH NGHĨA BIẾN MÀU (CSS VARIABLES)
    ========================================================================== */
 :root {
-    --bg-color: #f7f9fa;
-    --container-bg: #ffffff;
-    --text-color: #2c3e50;
-    --text-muted: #7f8c8d;
-    --border-color: #e2e8f0;
-    --primary-color: #3498db;
-    --primary-hover: #2980b9;
-    --btn-bg: #edf2f7;
-    --btn-text: #4a5568;
-    --last-read-bg: #ebf8ff;
-    --last-read-border: #bee3f8;
-    --last-read-text: #2b6cb0;
+    --bg-color: #ffffff;             /* Màu nền chính toàn trang */
+    --text-color: #000000;           /* Màu chữ chính */
+    --border-color: #dddddd;         /* Màu đường viền */
+    --btn-bg: #edf2f7;               /* Màu nền nút bấm mục lục */
+    --btn-text: #000000;             /* Màu chữ của nút */
+    --last-read-bg: #f0f8ff;         /* Màu nền hộp Đọc gần nhất */
+    --last-read-border: #2196F3;     /* Màu viền hộp Đọc gần nhất */
+    --hover-bg: #f5f5f5;             /* Màu khi di chuột qua hàng */
 }
 
-/* ==========================================================================
-   DARK MODE COLORS
-   ========================================================================== */
+/* Bảng màu khi kích hoạt Chế độ tối (Dark Mode) */
 body.dark-mode {
-    --bg-color: #1a202c;
-    --container-bg: #2d3748;
-    --text-color: #e2e8f0;
-    --text-muted: #a0aec0;
-    --border-color: #4a5568;
-    --primary-color: #63b3ed;
-    --primary-hover: #4299e1;
-    --btn-bg: #4a5568;
-    --btn-text: #edf2f7;
-    --last-read-bg: #2a4365;
-    --last-read-border: #2b6cb0;
-    --last-read-text: #90cdf4;
+    --bg-color: #121212;             /* Nền tối không gây chói mắt */
+    --text-color: #e0e0e0;           /* Chữ xám sáng giảm mỏi mắt */
+    --border-color: #333333;         /* Viền tối hơn */
+    --btn-bg: #2d2d2d;               /* Nền nút tối */
+    --btn-text: #e0e0e0;             /* Chữ nút sáng */
+    --last-read-bg: #1a2635;         /* Hộp đọc gần nhất ban đêm */
+    --last-read-border: #1565c0;     /* Viền đọc gần nhất ban đêm */
+    --hover-bg: #1e1e1e;             /* Màu hover ban đêm */
 }
 
 /* ==========================================================================
-   BASE STYLE (Áp dụng biến màu)
+   2. CẤU TRÚC GIAO DIỆN CHÍNH (ÁP DỤNG BIẾN MÀU THAY MÀU CỐ ĐỊNH)
    ========================================================================== */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    margin: 0;
+    max-width: 900px;
+    margin: auto;
     padding: 20px;
-    line-height: 1.6;
-    transition: background-color 0.3s ease, color 0.3s ease; /* Hiệu ứng chuyển đổi mượt mà */
-}
-
-#chapterList, #reader {
-    max-width: 800px;
-    margin: 0 auto;
-    background: var(--container-bg);
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    transition: background-color 0.3s ease;
-}
-
-body.dark-mode #chapterList, body.dark-mode #reader {
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-}
-
-/* Định dạng cho văn bản truyện (Markdown Content) */
-#content {
+    font-family: Arial, sans-serif;
+    line-height: 1.8;
     font-size: 18px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    margin-top: 20px;
+    background-color: var(--bg-color); /* Áp dụng biến màu nền */
+    color: var(--text-color);           /* Áp dụng biến màu chữ */
+    transition: background-color 0.2s ease, color 0.2s ease; /* Hiệu ứng chuyển màu mượt */
+}
+
+/* NỘI DUNG TRUYỆN (MARKDOWN CONTENT) */
+#content {
     color: var(--text-color);
 }
 
-#content p {
-    margin-bottom: 1.5em;
+/* TITLE */
+h1 {
+    margin-bottom: 15px;
 }
 
-/* Input tìm kiếm */
-input[type="text"] {
+/* SEARCH INPUT */
+#searchInput {
     width: 100%;
     padding: 12px;
-    margin-bottom: 20px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+    font-size: 16px;
+    margin-bottom: 10px;
     box-sizing: border-box;
-    background-color: var(--container-bg);
+    background-color: var(--bg-color);
     color: var(--text-color);
+    border: 1px solid var(--border-color);
 }
 
-/* Danh sách chương */
+/* LAST READ BOX (Hộp đọc gần nhất) */
+.last-read {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: var(--last-read-bg);
+    border-left: 4px solid var(--last-read-border);
+    color: var(--text-color);
+    cursor: pointer;
+    display: none;
+}
+
+.last-read:hover {
+    filter: brightness(95%); /* Tự động tối đi một chút khi hover */
+}
+
+body.dark-mode .last-read:hover {
+    filter: brightness(120%); /* Tự động sáng lên một chút khi hover ở chế độ tối */
+}
+
+/* LIST CHƯƠNG */
 ul {
-    list-style: none;
     padding: 0;
 }
 
 li {
-    padding: 15px 20px;
+    list-style: none;
+    padding: 10px;
     border-bottom: 1px solid var(--border-color);
     cursor: pointer;
-    transition: background 0.2s;
+    color: var(--text-color);
 }
 
 li:hover {
-    background-color: var(--btn-bg);
+    background-color: var(--hover-bg);
 }
 
-/* Các loại nút bấm */
+/* BUTTONS (Nút chuyển chương, nút mục lục) */
 button {
+    padding: 8px 12px;
+    margin: 5px;
+    cursor: pointer;
     background-color: var(--btn-bg);
     color: var(--btn-text);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    transition: background-color 0.2s;
 }
 
 button:hover {
-    background-color: var(--border-color);
+    filter: brightness(90%);
 }
 
-/* Khối đọc gần nhất */
-.last-read {
-    background-color: var(--last-read-bg);
-    border: 1px solid var(--last-read-border);
-    color: var(--last-read-text);
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    cursor: pointer;
-}
-
-/* Thanh phân trang */
-#pagination {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-}
-
+/* NAV */
 .nav {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 30px;
+    margin-top: 25px;
 }
 
-/* ⚙️ THIẾT KẾ RIÊNG CHO NÚT ĐỔI GIAO DIỆN (FIXED FLOATING) */
+/* PAGINATION */
+#pagination {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    align-items: center;
+}
+
+/* ==========================================================================
+   3. ĐỊNH DẠNG RIÊNG CHO NÚT ICON ĐỔI GIAO DIỆN GÓC MÀN HÌNH
+   ========================================================================== */
 .theme-toggle {
     position: fixed;
     top: 20px;
@@ -152,11 +137,17 @@ button:hover {
     z-index: 1000;
     width: 45px;
     height: 45px;
-    border-radius: 50% !important;
+    border-radius: 50%;
     padding: 0;
     font-size: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    background-color: var(--btn-bg);
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .theme-toggle {
+    box-shadow: 0 2px 8px rgba(255,255,255,0.05);
 }
