@@ -6,7 +6,54 @@ let currentPage = 1;
 let currentData = [];
 
 // ⚙️ VARIABLES FOR POSITION MANAGEMENT
-let isRestoringScroll = false; // Cờ chặn việc ghi đè vị trí cũ trong lúc trình duyệt đang khôi phục màn hình
+let isRestoringScroll = false; 
+
+// =====================
+// 🌓 INITIALIZE THEME (Chạy ngay lập tức khi nạp file để tránh giói mắt)
+// =====================
+initTheme();
+
+function initTheme() {
+    const savedTheme = localStorage.getItem("reader_theme");
+    
+    // Nếu người dùng đã thiết lập trước đó
+    if (savedTheme === "dark") {
+        document.body.classList.add("dark-mode");
+    } else if (savedTheme === "light") {
+        document.body.classList.remove("dark-mode");
+    } else {
+        // Trường hợp mở ứng dụng lần đầu: Tự động nhận diện cấu hình thiết bị của người dùng
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (prefersDark) {
+            document.body.classList.add("dark-mode");
+        }
+    }
+    
+    // Cập nhật lại biểu tượng nút giao diện sau khi DOM sẵn sàng
+    window.addEventListener("DOMContentLoaded", updateThemeButtonIcon);
+}
+
+function toggleTheme() {
+    const isDark = document.body.classList.toggle("dark-mode");
+    
+    // Lưu cấu hình lựa chọn của người dùng vào LocalStorage
+    localStorage.setItem("reader_theme", isDark ? "dark" : "light");
+    
+    updateThemeButtonIcon();
+}
+
+function updateThemeButtonIcon() {
+    const btn = document.getElementById("themeToggle");
+    if (!btn) return;
+    
+    if (document.body.classList.contains("dark-mode")) {
+        btn.textContent = "☀️"; // Chế độ tối hiển thị mặt trời để bấm chuyển sang sáng
+        btn.title = "Chuyển sang giao diện sáng";
+    } else {
+        btn.textContent = "🌙"; // Chế độ sáng hiển thị mặt trăng để bấm chuyển sang tối
+        btn.title = "Chuyển sang giao diện tối";
+    }
+}
 
 
 // =====================
@@ -135,25 +182,22 @@ async function openChapter(index){
     document.getElementById("chapterList").style.display = "none";
     document.getElementById("reader").style.display = "block";
 
-    // 📌 SAVE LAST READ
+    // SAVE LAST READ
     saveLastRead(index);
     renderLastRead();
 
-    // 📌 KHÔI PHỤC VỊ TRÍ ĐỌC DỞ CHÍNH XÁC
+    // KHÔI PHỤC VỊ TRÍ ĐỌC DỞ
     const savedChapterId = localStorage.getItem("bookmark_chapter_id");
     const savedPosition = localStorage.getItem("bookmark_scroll_pos");
     
-    // Nếu ID chương đang mở trùng khớp với ID chương lưu trong máy
     if (savedChapterId && savedPosition && savedChapterId === chapter.id.toString()) {
         isRestoringScroll = true;
         
-        // Đặt timeout ngắn (100ms) chờ trình duyệt render HTML xong để cuộn nhảy đến đúng vị trí cũ
         setTimeout(() => {
             window.scrollTo(0, parseInt(savedPosition));
             isRestoringScroll = false;
         }, 100);
     } else {
-        // Nếu mở một chương khác hoặc chưa từng đọc chương này, đưa thẳng lên đầu trang
         window.scrollTo(0, 0);
     }
 }
@@ -186,14 +230,12 @@ function renderLastRead(){
 
 
 // =====================
-// 📌 LẮNG NGHE & CẬP NHẬT VỊ TRÍ KHI NGƯỜI DÙNG CUỘN TRANG
+// LẮNG NGHE & CẬP NHẬT VỊ TRÍ CUỘN TRANG
 // =====================
 window.addEventListener("scroll", () => {
-    // Chỉ lưu vị trí nếu đang ở màn hình đọc và không nằm trong tiến trình khôi phục cuộn trang cũ
     if (document.getElementById("reader").style.display === "block" && !isRestoringScroll && chapters[current]) {
         const chapterId = chapters[current].id;
         
-        // Chỉ lưu duy nhất 1 thông tin vị trí của chương mới nhất đang đọc
         localStorage.setItem("bookmark_chapter_id", chapterId);
         localStorage.setItem("bookmark_scroll_pos", window.scrollY);
     }
